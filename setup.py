@@ -20,7 +20,7 @@ DEPENDENCIES = [
     "ujson",
     "pytz",
     "udatetime",
-    "pipe-tools==0.2.4",
+    "pipe-tools==2.0.0",
     "jinja2-cli",
     "requests==2.9.2",
     "newlinejson==1.0",
