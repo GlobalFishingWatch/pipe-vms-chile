@@ -83,8 +83,7 @@ class PipelineDagFactory(DagFactory):
             )
 
             segment = SubDagOperator(
-                subdag=pipe_segment.build_dag(
-                    dag_id='{}.segment'.format(dag_id),
+                subdag=pipe_segment.PipeSegmentDagFactory(
                     schedule_interval=dag.schedule_interval,
                     extra_default_args=subdag_default_args,
                     extra_config=dict(
@@ -94,7 +93,7 @@ class PipelineDagFactory(DagFactory):
                         dataflow_runner='{dataflow_runner}'.format(**config),
                         temp_shards_per_day="3",
                     )
-                ),
+                ).build(dag_id='{}.segment'.format(dag_id)),
                 depends_on_past=True,
                 task_id='segment'
             )
