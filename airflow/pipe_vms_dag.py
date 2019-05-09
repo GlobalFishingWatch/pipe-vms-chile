@@ -9,7 +9,7 @@ from airflow.contrib.operators.bigquery_check_operator import BigQueryCheckOpera
 from airflow.operators.subdag_operator import SubDagOperator
 from airflow.utils.trigger_rule import TriggerRule
 
-from pipe_tools.airflow.models import DagFactory
+from airflow_ext.gfw.models import DagFactory
 
 
 PIPELINE = 'pipe_vms_chile'
