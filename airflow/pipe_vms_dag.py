@@ -12,7 +12,7 @@ from airflow.utils.trigger_rule import TriggerRule
 from pipe_tools.airflow.models import DagFactory
 
 
-PIPELINE = 'pipe_vms_panama'
+PIPELINE = 'pipe_vms_chile'
 
 def get_dag_path(pipeline, module=None):
     if module is None:
@@ -30,7 +30,7 @@ pipe_events = imp.load_source('pipe_events', get_dag_path('pipe_events'))
 
 
 #
-# PIPE_VMS_panama
+# PIPE_VMS_chile
 #
 class PipelineDagFactory(DagFactory):
     def __init__(self, pipeline=PIPELINE, **kwargs):
