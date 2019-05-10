@@ -93,7 +93,7 @@ class PipelineDagFactory(DagFactory):
                         dataflow_runner='{dataflow_runner}'.format(**config),
                         temp_shards_per_day="3",
                     )
-                ).build(),
+                ).build(dag_id='{}.segment'.format(dag_id)),
                 depends_on_past=True,
                 task_id='segment'
             )
