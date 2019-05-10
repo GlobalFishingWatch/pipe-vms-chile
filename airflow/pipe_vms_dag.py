@@ -89,11 +89,11 @@ class PipelineDagFactory(DagFactory):
                     extra_config=dict(
                         pipeline_dataset=config['pipeline_dataset'],
                         source_dataset=config['pipeline_dataset'],
-                        normalized_tables='{normalized}'.format(**config),
+                        source_tables='{normalized}'.format(**config),
                         dataflow_runner='{dataflow_runner}'.format(**config),
                         temp_shards_per_day="3",
                     )
-                ).build(dag_id='{}.segment'.format(dag_id)),
+                ).build(),
                 depends_on_past=True,
                 task_id='segment'
             )
