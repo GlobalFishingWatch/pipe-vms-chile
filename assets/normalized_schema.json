@@ -73,12 +73,6 @@
     },
     {
       "mode": "NULLABLE",
-      "name": "fishing_gear",
-      "type": "INTEGER",
-      "description": "Null in all cases, this is for compatibility with AIS pipeline."
-    },
-    {
-      "mode": "NULLABLE",
       "name": "shiptype",
       "type": "STRING",
       "description": "Null in all cases, this is for compatibility with AIS pipeline."

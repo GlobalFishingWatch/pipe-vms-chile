@@ -19,7 +19,8 @@ raw_vms_positions_normalized AS (
   FROM
     `{{ source }}`
   WHERE
-    Date(timestamp) = Date('{{ date }}')
+    timestamp > Timestamp({{ date }})
+    AND timestamp <= TIMESTAMP_ADD(Timestamp({{ date }}), INTERVAL 1 DAY)
 ),
 
 ###
