@@ -14,7 +14,7 @@ raw_vms_positions_normalized AS (
     heading as course, 
     TO_HEX(MD5(shipname)) as ssvid,
     IF(callsign != "", callsign, NULL) callsign, 
-    "chile_vms" as source,
+    CONCAT("chile_vms_",fleet) as source,
     "VMS" type
   FROM
     `{{ source }}`
