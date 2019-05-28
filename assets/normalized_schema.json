@@ -1,0 +1,99 @@
+[
+    {
+      "mode": "NULLABLE",
+      "name": "msgid",
+      "type": "STRING",
+      "description": "A unique message id to be used to join with posterior pipeline output tables."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "ssvid",
+      "type": "STRING",
+      "description": "We don't have an id in the chilean data so we do TO_HEX(MD5(shipname))."
+    },    
+    {
+      "mode": "NULLABLE",
+      "name": "source",
+      "type": "STRING",
+      "description": "chile in all messages"  
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "timestamp",
+      "type": "TIMESTAMP",
+      "description": "Timestamp in UTC."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "lat",
+      "type": "FLOAT",
+      "description": "Latitude"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "lon",
+      "type": "FLOAT",
+      "description": "Longitude"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "speed",
+      "type": "FLOAT",
+      "description": "SOG. Speed Over Ground in knots."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "course",
+      "type": "FLOAT",
+      "description": "COG. Course over ground, on VMS records taken from the Heading field."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "shipname",
+      "type": "STRING",
+      "description": "Name of the vessel."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "callsign",
+      "type": "STRING",
+      "description": "Callsign, will be empty for all records, since indo data don't include this value."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "imo",
+      "type": "STRING",
+      "description": "Null in all cases, this is for compatibility with AIS pipeline."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "type",
+      "type": "STRING",
+      "description": "The type. VMS for all VMS records and the AIS.X for the AIS records."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "fishing_gear",
+      "type": "INTEGER",
+      "description": "Null in all cases, this is for compatibility with AIS pipeline."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "shiptype",
+      "type": "STRING",
+      "description": "Null in all cases, this is for compatibility with AIS pipeline."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "length",
+      "type": "FLOAT",
+      "description": "Null in all cases, this is for compatibility with AIS pipeline."
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "width",
+      "type": "FLOAT",
+      "description": "Null in all cases, this is for compatibility with AIS pipeline."
+    }
+  ]
+ 
