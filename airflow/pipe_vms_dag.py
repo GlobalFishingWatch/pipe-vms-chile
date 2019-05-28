@@ -57,8 +57,17 @@ class PipelineDagFactory(DagFactory):
         def table_partition_check(dataset_id, table_id, date):
             return BigQueryCheckOperator(
                 task_id='table_partition_check',
+                use_legacy_sql=False,
                 dataset_id=dataset_id,
-                sql='SELECT COUNT(*) FROM [{}.{}${}]'.format(dataset_id, table_id, date),
+                sql='SELECT '
+                        'COUNT(*) FROM `{dataset}.{table}` '
+                    'WHERE '
+                        'timestamp > Timestamp("{date}") '
+                        'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY)'
+                    .format(
+                        dataset=dataset_id,
+                        table=table_id,
+                        date=date),
                 retries=24*2*7,       # retry twice per hour for a week
                 retry_delay=timedelta(minutes=30),
                 retry_exponential_backoff=False
@@ -69,7 +78,7 @@ class PipelineDagFactory(DagFactory):
             source_exists=table_partition_check(
                 '{source_dataset}'.format(**config),
                 '{source_table}'.format(**config),
-                '{ds_nodash}'.format(**config))
+                '{ds}'.format(**config))
                         
             
             fetch_normalized = BashOperator(
