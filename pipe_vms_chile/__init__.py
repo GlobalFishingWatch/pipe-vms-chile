@@ -4,7 +4,7 @@ Pipeline for processing the Chile VMS data
 
 # [TODO]: Review and edit everything in this file
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = 'Enrique Tuya'
 __email__ = 'enrique@globalfishingwatch.org'
 __source__ = 'https://github.com/GlobalFishingWatch/pipe-vms-chile'
