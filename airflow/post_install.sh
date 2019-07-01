@@ -13,6 +13,8 @@ python $AIRFLOW_HOME/utils/set_default_variables.py \
     pipeline_dataset="pipe_chile_production_v20190509" \
     source_dataset="VMS_Chile" \
     source_table="raw_industry_partitioned" \
+    source_naf_dataset="VMS_Chile" \
+    source_naf_table="raw_naf_all_view" \
     normalized="chile_vms_normalized_" \
 
 echo "Installation Complete"

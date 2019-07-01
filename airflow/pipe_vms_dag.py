@@ -1,15 +1,17 @@
-import posixpath as pp
-import imp
-from datetime import datetime, timedelta
-
-from airflow.models import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.models import Variable
 from airflow.contrib.operators.bigquery_check_operator import BigQueryCheckOperator
+from airflow.models import DAG
+from airflow.models import Variable
+from airflow.operators.bash_operator import BashOperator
 from airflow.operators.subdag_operator import SubDagOperator
 from airflow.utils.trigger_rule import TriggerRule
 
 from airflow_ext.gfw.models import DagFactory
+from airflow_ext.gfw.operators.python_operator import ExecutionDateBranchOperator
+
+from datetime import datetime, timedelta
+
+import imp
+import posixpath as pp
 
 
 PIPELINE = 'pipe_vms_chile'
@@ -28,6 +30,10 @@ pipe_encounters = imp.load_source('pipe_encounters', get_dag_path('pipe_encounte
 pipe_features = imp.load_source('pipe_features', get_dag_path('pipe_features'))
 pipe_events = imp.load_source('pipe_events', get_dag_path('pipe_events'))
 
+date_branches = [
+    (None                 ,  datetime(2019, 5, 22), 'historic'),
+    (datetime(2019, 5, 23),  None,                  'naf_daily')
+]
 
 #
 # PIPE_VMS_chile
@@ -53,10 +59,10 @@ class PipelineDagFactory(DagFactory):
         config['source_paths'] = ','.join(self.source_table_paths())
         config['source_dates'] = ','.join(self.source_date_range())
 
-        
-        def table_partition_check(dataset_id, table_id, date):
+
+        def table_partition_check(name, dataset_id, table_id, date):
             return BigQueryCheckOperator(
-                task_id='table_partition_check',
+                task_id='table_partition_check_{}'.format(name),
                 use_legacy_sql=False,
                 dataset_id=dataset_id,
                 sql='SELECT '
@@ -73,23 +79,54 @@ class PipelineDagFactory(DagFactory):
                 retry_exponential_backoff=False
             )
 
-        
-        with DAG(dag_id, schedule_interval=self.schedule_interval, default_args=self.default_args) as dag:            
+
+        with DAG(dag_id, schedule_interval=self.schedule_interval, default_args=self.default_args) as dag:
+
+            date_branch = ExecutionDateBranchOperator(
+                task_id='date_branch',
+                date_branches=date_branches
+            )
+            naf_daily = DummyOperator(task_id='naf_daily')
+            historic = DummyOperator(task_id='historic')
+
             source_exists=table_partition_check(
+                'historic',
                 '{source_dataset}'.format(**config),
                 '{source_table}'.format(**config),
                 '{ds}'.format(**config))
-                        
-            
+
+
             fetch_normalized = BashOperator(
                 task_id='fetch_normalized_daily',
                 pool='bigquery',
                 bash_command='{docker_run} {docker_image} fetch_normalized_vms '
                              '{source_dates} '
+                             'historic',
                              '{source_paths} '
                              '{project_id}:{pipeline_dataset}.{normalized} '
                              ''.format(**config)
             )
+
+            #---- NAF------
+            source_naf_exists=table_partition_check(
+                'naf_daily',
+                '{source_naf_dataset}'.format(**config),
+                '{source_naf_table}'.format(**config),
+                '{ds_nodash}'.format(**config))
+
+            fetch_normalized_naf = BashOperator(
+                task_id='fetch_normalized_naf_daily',
+                pool='bigquery',
+                bash_command='{docker_run} {docker_image} fetch_normalized_vms '
+                             '{source_dates} '
+                             'naf_daily '
+                             '{project_id}:{source_naf_dataset}.{source_naf_table} '
+                             '{project_id}:{pipeline_dataset}.{normalized} '
+                             '{project_id}:{source_ais_messages_scored_table} '
+                             ''.format(**config)
+            )
+            #---- NAF------
+
 
             segment = SubDagOperator(
                 subdag=pipe_segment.PipeSegmentDagFactory(
@@ -103,6 +140,7 @@ class PipelineDagFactory(DagFactory):
                         temp_shards_per_day="3",
                     )
                 ).build(dag_id='{}.segment'.format(dag_id)),
+                trigger_rule=TriggerRule.ONE_SUCCESS,
                 depends_on_past=True,
                 task_id='segment'
             )
@@ -166,9 +204,13 @@ class PipelineDagFactory(DagFactory):
                 task_id='events'
             )
 
-            dag >> source_exists >> fetch_normalized
+            dag >> date_branch >> historic >> source_exists >> fetch_normalized
+            dag >> date_branch >> naf_daily >> source_naf_exists >>  fetch_normalized_naf
 
-            fetch_normalized >> segment >> measures
+            fetch_normalized >> segment
+            fetch_normalized_naf >> segment
+
+            segment >> measures
 
             measures >> port_events >> port_visits >> features
             measures >> encounters >> features
