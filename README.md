@@ -1,6 +1,6 @@
 # Pipe VMS Chile pipeline
 
-This repository contains the peruvian VMS API consumption pipeline. 
+This repository contains the Chilean VMS API consumption pipeline.
 
 # Running
 
@@ -19,12 +19,17 @@ to run this command and follow the instructions:
 ```
 docker-compose run gcloud auth login
 ```
+### Parameters
+
+There is a particular parameter that must to be set in order to run the Chilean VMS Pipeline.
+`fleets`: Required. It is an array with the names of all the fleets handle by chileans.
 
 ## CLI
 
 The pipeline includes a CLI that can be used to start both local test runs and
 remote full runs. Just run `docker-compose run pipeline --help` and follow the
 instructions there.
+
 
 # License
 

@@ -58,22 +58,26 @@ class PipelineDagFactory(DagFactory):
         )
         config['source_paths'] = ','.join(self.source_table_paths())
         config['source_dates'] = ','.join(self.source_date_range())
+        source_exists = []
+        source_naf_exists = []
 
 
-        def table_partition_check(name, dataset_id, table_id, date):
+        def table_partition_check(name, dataset_id, table_id, date, fleet):
             return BigQueryCheckOperator(
-                task_id='table_partition_check_{}'.format(name),
+                task_id='table_partition_check_{}_{}'.format(fleet, name),
                 use_legacy_sql=False,
                 dataset_id=dataset_id,
                 sql='SELECT '
                         'COUNT(*) FROM `{dataset}.{table}` '
                     'WHERE '
                         'timestamp > Timestamp("{date}") '
-                        'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY)'
+                        'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY) '
+                        'AND fleet = {fleet}'
                     .format(
                         dataset=dataset_id,
                         table=table_id,
-                        date=date),
+                        date=date,
+                        fleet=fleet),
                 retries=24*2*7,       # retry twice per hour for a week
                 retry_delay=timedelta(minutes=30),
                 retry_exponential_backoff=False
@@ -89,11 +93,13 @@ class PipelineDagFactory(DagFactory):
             naf_daily = DummyOperator(task_id='naf_daily')
             historic = DummyOperator(task_id='historic')
 
-            source_exists=table_partition_check(
-                'historic',
-                '{source_dataset}'.format(**config),
-                '{source_table}'.format(**config),
-                '{ds}'.format(**config))
+            for fleet in config['fleets']:
+                source_exists.append(table_partition_check(
+                    'historic',
+                    '{source_dataset}'.format(**config),
+                    '{source_table}'.format(**config),
+                    '{ds}'.format(**config),
+                    '{fleet}'.format(fleet)))
 
 
             fetch_normalized = BashOperator(
@@ -101,18 +107,20 @@ class PipelineDagFactory(DagFactory):
                 pool='bigquery',
                 bash_command='{docker_run} {docker_image} fetch_normalized_vms '
                              '{source_dates} '
-                             'historic',
+                             'historic '
                              '{source_paths} '
                              '{project_id}:{pipeline_dataset}.{normalized} '
                              ''.format(**config)
             )
 
             #---- NAF------
-            source_naf_exists=table_partition_check(
-                'naf_daily',
-                '{source_naf_dataset}'.format(**config),
-                '{source_naf_table}'.format(**config),
-                '{ds_nodash}'.format(**config))
+            for fleet in config['fleets']:
+                source_naf_exists(table_partition_check(
+                    'naf_daily',
+                    '{source_naf_dataset}'.format(**config),
+                    '{source_naf_table}'.format(**config),
+                    '{ds_nodash}'.format(**config),
+                    '{fleet}'.format(fleet)))
 
             fetch_normalized_naf = BashOperator(
                 task_id='fetch_normalized_naf_daily',
@@ -204,8 +212,13 @@ class PipelineDagFactory(DagFactory):
                 task_id='events'
             )
 
-            dag >> date_branch >> historic >> source_exists >> fetch_normalized
-            dag >> date_branch >> naf_daily >> source_naf_exists >>  fetch_normalized_naf
+            dag >> date_branch >> historic
+            for existence_sensor in source_exists:
+                historic >> existence_sensor >> fetch_normalized
+
+            dag >> date_branch >> naf_daily
+            for existence_sensor in source_naf_exists:
+                naf_daily >> existence_sensor >> fetch_normalized_naf
 
             fetch_normalized >> segment
             fetch_normalized_naf >> segment
