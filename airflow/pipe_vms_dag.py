@@ -60,12 +60,6 @@ class PipelineDagFactory(DagFactory):
         config['source_paths'] = ','.join(self.source_table_paths())
         config['source_dates'] = ','.join(self.source_date_range())
         fleets = Variable.get(PIPELINE, deserialize_json=True)['fleets']
-        print '   ========= FLEETS {}'.format(fleets)
-        for x in fleets:
-            print ' ====== Describing fleet {}'.format(x)
-        source_exists = []
-        source_naf_exists = []
-
 
         def table_partition_check(name, dataset_id, table_id, date, fleet):
             return BigQueryCheckOperator(
@@ -90,6 +84,8 @@ class PipelineDagFactory(DagFactory):
 
 
         with DAG(dag_id, schedule_interval=self.schedule_interval, default_args=self.default_args) as dag:
+            source_exists = []
+            source_naf_exists = []
 
             date_branch = ExecutionDateBranchOperator(
                 task_id='date_branch',
@@ -120,7 +116,7 @@ class PipelineDagFactory(DagFactory):
 
             #---- NAF------
             for fleet in fleets:
-                source_naf_exists(table_partition_check(
+                source_naf_exists.append(table_partition_check(
                     'naf_daily',
                     '{source_naf_dataset}'.format(**config),
                     '{source_naf_table}'.format(**config),
