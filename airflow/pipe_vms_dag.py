@@ -2,6 +2,7 @@ from airflow.contrib.operators.bigquery_check_operator import BigQueryCheckOpera
 from airflow.models import DAG
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
+from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.subdag_operator import SubDagOperator
 from airflow.utils.trigger_rule import TriggerRule
 
@@ -58,7 +59,10 @@ class PipelineDagFactory(DagFactory):
         )
         config['source_paths'] = ','.join(self.source_table_paths())
         config['source_dates'] = ','.join(self.source_date_range())
-        fleets = config['fleets']
+        fleets = Variable.get(PIPELINE, deserialize_json=True)['fleets']
+        print '   ========= FLEETS {}'.format(fleets)
+        for x in fleets:
+            print ' ====== Describing fleet {}'.format(x)
         source_exists = []
         source_naf_exists = []
 
@@ -73,7 +77,7 @@ class PipelineDagFactory(DagFactory):
                     'WHERE '
                         'timestamp > Timestamp("{date}") '
                         'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY) '
-                        'AND fleet = {fleet}'
+                        'AND fleet = "{fleet}"'
                     .format(
                         dataset=dataset_id,
                         table=table_id,
@@ -100,7 +104,7 @@ class PipelineDagFactory(DagFactory):
                     '{source_dataset}'.format(**config),
                     '{source_table}'.format(**config),
                     '{ds}'.format(**config),
-                    '{fleet}'.format(fleet)))
+                    '{}'.format(fleet)))
 
 
             fetch_normalized = BashOperator(
@@ -121,7 +125,7 @@ class PipelineDagFactory(DagFactory):
                     '{source_naf_dataset}'.format(**config),
                     '{source_naf_table}'.format(**config),
                     '{ds_nodash}'.format(**config),
-                    '{fleet}'.format(fleet)))
+                    '{}'.format(fleet)))
 
             fetch_normalized_naf = BashOperator(
                 task_id='fetch_normalized_naf_daily',
@@ -129,9 +133,8 @@ class PipelineDagFactory(DagFactory):
                 bash_command='{docker_run} {docker_image} fetch_normalized_vms '
                              '{source_dates} '
                              'naf_daily '
-                             '{project_id}:{source_naf_dataset}.{source_naf_table} '
+                             '{source_paths} '
                              '{project_id}:{pipeline_dataset}.{normalized} '
-                             '{project_id}:{source_ais_messages_scored_table} '
                              ''.format(**config)
             )
             #---- NAF------
