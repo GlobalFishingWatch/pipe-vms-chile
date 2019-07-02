@@ -58,6 +58,7 @@ class PipelineDagFactory(DagFactory):
         )
         config['source_paths'] = ','.join(self.source_table_paths())
         config['source_dates'] = ','.join(self.source_date_range())
+        fleets = config['fleets']
         source_exists = []
         source_naf_exists = []
 
@@ -93,7 +94,7 @@ class PipelineDagFactory(DagFactory):
             naf_daily = DummyOperator(task_id='naf_daily')
             historic = DummyOperator(task_id='historic')
 
-            for fleet in config['fleets']:
+            for fleet in fleets:
                 source_exists.append(table_partition_check(
                     'historic',
                     '{source_dataset}'.format(**config),
@@ -114,7 +115,7 @@ class PipelineDagFactory(DagFactory):
             )
 
             #---- NAF------
-            for fleet in config['fleets']:
+            for fleet in fleets:
                 source_naf_exists(table_partition_check(
                     'naf_daily',
                     '{source_naf_dataset}'.format(**config),
