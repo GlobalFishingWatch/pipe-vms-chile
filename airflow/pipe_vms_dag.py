@@ -120,7 +120,7 @@ class PipelineDagFactory(DagFactory):
                     'naf_daily',
                     '{source_naf_dataset}'.format(**config),
                     '{source_naf_table}'.format(**config),
-                    '{ds_nodash}'.format(**config),
+                    '{ds}'.format(**config),
                     '{}'.format(fleet)))
 
             fetch_normalized_naf = BashOperator(
