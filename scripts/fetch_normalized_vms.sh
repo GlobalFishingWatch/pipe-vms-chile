@@ -10,14 +10,21 @@ source ${THIS_SCRIPT_DIR}/pipeline.sh
 PROCESS=$(basename $0 .sh)
 ARGS=( 
         DT \
+        MODE \
         BIGQUERY_SOURCE \
-        BIGQUERY_DESTINATION 
+        BIGQUERY_DESTINATION
       )
 
 echo -e "\nRunning:\n${PROCESS}.sh $@ \n"
 
 display_usage() {
-	echo -e "\nUsage:\fetch_normalized_vms YYYY-MM-DD BIGQUERY_SOURCE BIGQUERY_DESTINATION  \n"
+	echo -e "\nUsage:\nfetch_normalized_vms YYYY-MM-DD BIGQUERY_SOURCE BIGQUERY_DESTINATION  \n"
+  echo -e "\nUsage:\n${PROCESS}.sh ${ARGS[*]}\n"
+  echo -e "DT: Date to be fetched in YYYY-MM-DD format.\n"
+  echo -e "MODE: The mode how to fetch the data.\n"
+  echo -e "BIGQUERY_SOURCE: BigQuery dataset and table where the input is already stored (Format expected <DATASET>.<TABLE>).\n"
+  echo -e "BIGQUERY_DESTINATION: BigQuery dataset and table where will be stored the output (Format expected <DATASET>.<TABLE>).\n"
+
 }
 
 if [[ $# -ne ${#ARGS[@]} ]]
@@ -33,7 +40,7 @@ for index in ${!ARGS[*]}; do
   declare "${ARGS[$index]}"="${ARG_VALUES[$index]}"
 done
 
-SQL=${ASSETS}/fetch-normalized-vms.sql.j2
+SQL=${ASSETS}/fetch-${MODE}-normalized-vms.sql.j2
 
 YYYYMMDD=$(yyyymmdd ${DT})
 SOURCE_TABLE=${BIGQUERY_SOURCE/:/.}
@@ -48,7 +55,7 @@ TABLE_DESC=(
 )
 TABLE_DESC=$( IFS=$'\n'; echo "${TABLE_DESC[*]}" )
 
-echo "Fetching normalized vms into ${DEST_TABLE}..."
+echo "Fetching ${MODE} normalized vms into ${DEST_TABLE}..."
 echo "${TABLE_DESC}"
 
 jinja2 ${SQL} -D source=${SOURCE_TABLE} -D date=${DT}  \
