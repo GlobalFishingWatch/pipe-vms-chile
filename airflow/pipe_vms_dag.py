@@ -129,7 +129,7 @@ class PipelineDagFactory(DagFactory):
                 bash_command='{docker_run} {docker_image} fetch_normalized_vms '
                              '{source_dates} '
                              'naf_daily '
-                             '{source_paths} '
+                             '{project_id}:{source_naf_dataset}.{source_naf_table} '
                              '{project_id}:{pipeline_dataset}.{normalized} '
                              ''.format(**config)
             )
