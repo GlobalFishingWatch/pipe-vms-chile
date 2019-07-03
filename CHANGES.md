@@ -10,7 +10,9 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ### Added
 
-  * [GlobalFishingWatch/GFW-Tasks#1084](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1084)
+## 0.1.1 - (2019-07-03)
+
+  * [GlobalFishingWatch/GFW-Tasks#1085](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1085)
   * Includes the naf_daily processing in the pipe-vms-chile
 
 ### Added
