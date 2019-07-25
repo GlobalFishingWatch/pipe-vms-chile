@@ -33,7 +33,9 @@ pipe_events = imp.load_source('pipe_events', get_dag_path('pipe_events'))
 
 date_branches = [
     (None                 ,  datetime(2019, 5, 22), 'historic'),
-    (datetime(2019, 5, 23),  None,                  'naf_daily')
+    (datetime(2019, 5, 23),  datetime(2019, 5, 27), 'naf_daily'),
+    (datetime(2019, 5, 28),  datetime(2019, 7, 13), 'historic'),
+    (datetime(2019, 7, 14),  None,                  'naf_daily')
 ]
 
 #
