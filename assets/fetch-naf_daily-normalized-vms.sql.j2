@@ -10,7 +10,8 @@ raw_vms_positions_normalized AS (
     timestamp as timestamp,
     lat,
     lon,
-    speed,
+    #Speed fix https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1121
+    speed/10 speed,
     course,
     TO_HEX(MD5(shipname)) as ssvid,
     IF(callsign != "", callsign, NULL) callsign,
