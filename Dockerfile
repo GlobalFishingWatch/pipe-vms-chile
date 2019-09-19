@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:2.7-stretch
 
 # Configure the working directory
 RUN mkdir -p /opt/project
@@ -7,7 +7,7 @@ WORKDIR /opt/project
 # Install and update pip
 # Pin the version because pip>=10.0 does not support the --download flag  which is required for dataflow
 RUN pip install -U --ignore-installed pip==9.0.3
-ENV CLOUD_SDK_VERSION 248.0.0
+ENV CLOUD_SDK_VERSION 255.0.0
 
 # Download and install google cloud. See the dockerfile at
 # https://hub.docker.com/r/google/cloud-sdk/~/dockerfile/

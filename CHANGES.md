@@ -10,14 +10,19 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ### Added
 
+## 0.2.0
+
+* [GlobalFishingWatch/GFW-Tasks#1136](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1136)
+  * Move back to having only one flow and used a view that merged NAF and Themis Data
+
 ## 0.1.1 - (2019-07-03)
 
-  * [GlobalFishingWatch/GFW-Tasks#1085](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1085)
+* [GlobalFishingWatch/GFW-Tasks#1085](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1085)
   * Includes the naf_daily processing in the pipe-vms-chile
 
 ### Added
 
 ## 0.1.0
 
-  * Implementation of pipe-vms-chile
+* Implementation of pipe-vms-chile
 
