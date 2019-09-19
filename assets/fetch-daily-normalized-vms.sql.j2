@@ -5,22 +5,23 @@ WITH
 ### Apply basic transformations to the Panama VMS positions.
 ###
 raw_vms_positions_normalized AS (
-  SELECT 
-    shipname, 
-    timestamp as timestamp, 
-    latitude lat, 
-    longitude lon, 
-    speed, 
-    heading as course, 
+  SELECT
+    shipname,
+    timestamp as timestamp,
+    lat,
+    lon,
+    speed,
+    course,
     TO_HEX(MD5(shipname)) as ssvid,
-    IF(callsign != "", callsign, NULL) callsign, 
-    CONCAT("chile_vms_",fleet) as source,
+    IF(callsign != "", callsign, NULL) callsign,
+    CONCAT("chile_vms_", fleet) as source,
     "VMS" type
   FROM
     `{{ source }}`
   WHERE
     timestamp > Timestamp('{{ date }}')
     AND timestamp <= TIMESTAMP_ADD(Timestamp('{{ date }}'), INTERVAL 1 DAY)
+  GROUP BY 1,2,3,4,5,6,7,8,9
 ),
 
 ###
@@ -31,7 +32,7 @@ raw_positionsn_normalized_with_msgid as(
       #collection_type, msg_type, timestamp, lat, lon, imo, name, callsign
       TO_HEX( MD5 (
         format("%s|%t|%f|%f|%s|%s",
-            "chile",
+            source,
             timestamp,
             lat,
             lon,
@@ -41,16 +42,16 @@ raw_positionsn_normalized_with_msgid as(
       *
      FROM
         raw_vms_positions_normalized
-     WHERE 
+     WHERE
         ssvid IS NOT NULL
    )
-   
+
 
 
 ###
 ### Final Query with message IDs and the normalized values.
 ###
-SELECT 
-  * 
-FROM 
+SELECT
+  *
+FROM
     raw_positionsn_normalized_with_msgid
