@@ -1,7 +1,6 @@
 from airflow.contrib.operators.bigquery_check_operator import BigQueryCheckOperator
 from airflow.models import DAG
 from airflow.models import Variable
-from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.subdag_operator import SubDagOperator
 from airflow.utils.trigger_rule import TriggerRule
@@ -36,6 +35,28 @@ date_branches = [
     (datetime(2019, 5, 23),  None,                  'naf_daily')
 ]
 
+
+def table_partition_check(name, dataset_id, table_id, date, fleet):
+    return BigQueryCheckOperator(
+        task_id='table_partition_check_{}_{}'.format(fleet, name),
+        use_legacy_sql=False,
+        dataset_id=dataset_id,
+        sql='SELECT '
+                'COUNT(*) FROM `{dataset}.{table}` '
+            'WHERE '
+                'timestamp > Timestamp("{date}") '
+                'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY) '
+                'AND fleet = "{fleet}"'
+            .format(
+                dataset=dataset_id,
+                table=table_id,
+                date=date,
+                fleet=fleet),
+        retries=24*2*7,       # retry twice per hour for a week
+        retry_delay=timedelta(minutes=30),
+        retry_exponential_backoff=False
+    )
+
 #
 # PIPE_VMS_chile
 #
@@ -61,28 +82,6 @@ class PipelineDagFactory(DagFactory):
         config['source_dates'] = ','.join(self.source_date_range())
         fleets = Variable.get(PIPELINE, deserialize_json=True)['fleets']
 
-        def table_partition_check(name, dataset_id, table_id, date, fleet):
-            return BigQueryCheckOperator(
-                task_id='table_partition_check_{}_{}'.format(fleet, name),
-                use_legacy_sql=False,
-                dataset_id=dataset_id,
-                sql='SELECT '
-                        'COUNT(*) FROM `{dataset}.{table}` '
-                    'WHERE '
-                        'timestamp > Timestamp("{date}") '
-                        'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY) '
-                        'AND fleet = "{fleet}"'
-                    .format(
-                        dataset=dataset_id,
-                        table=table_id,
-                        date=date,
-                        fleet=fleet),
-                retries=24*2*7,       # retry twice per hour for a week
-                retry_delay=timedelta(minutes=30),
-                retry_exponential_backoff=False
-            )
-
-
         with DAG(dag_id, schedule_interval=self.schedule_interval, default_args=self.default_args) as dag:
             source_exists = []
             source_naf_exists = []
@@ -102,17 +101,19 @@ class PipelineDagFactory(DagFactory):
                     '{ds}'.format(**config),
                     '{}'.format(fleet)))
 
-
-            fetch_normalized = BashOperator(
-                task_id='fetch_normalized_daily',
-                pool='bigquery',
-                bash_command='{docker_run} {docker_image} fetch_normalized_vms '
-                             '{source_dates} '
-                             'historic '
-                             '{source_paths} '
-                             '{project_id}:{pipeline_dataset}.{normalized} '
-                             ''.format(**config)
-            )
+            fetch_normalized_historic = self.build_docker_task({
+                'task_id':'fetch_normalized_historic',
+                'pool':'k8operators_limit',
+                'docker_run':'{docker_run}'.format(**config),
+                'image':'{docker_image}'.format(**config),
+                'name':'fetch-normalized-historic',
+                'dag':dag,
+                'arguments':['fetch_normalized_vms',
+                             '{source_dates}'.format(**config),
+                             'historic',
+                             '{source_paths}'.format(**config),
+                             '{project_id}:{pipeline_dataset}.{normalized}'.format(**config)]
+            })
 
             #---- NAF------
             for fleet in fleets:
@@ -123,16 +124,19 @@ class PipelineDagFactory(DagFactory):
                     '{ds}'.format(**config),
                     '{}'.format(fleet)))
 
-            fetch_normalized_naf = BashOperator(
-                task_id='fetch_normalized_naf_daily',
-                pool='bigquery',
-                bash_command='{docker_run} {docker_image} fetch_normalized_vms '
-                             '{source_dates} '
-                             'naf_daily '
-                             '{project_id}:{source_naf_dataset}.{source_naf_table} '
-                             '{project_id}:{pipeline_dataset}.{normalized} '
-                             ''.format(**config)
-            )
+            fetch_normalized_naf_daily = self.build_docker_task({
+                'task_id':'fetch_normalized_naf_daily',
+                'pool':'k8operators_limit',
+                'docker_run':'{docker_run}'.format(**config),
+                'image':'{docker_image}'.format(**config),
+                'name':'fetch-normalized-naf-daily',
+                'dag':dag,
+                'arguments':['fetch_normalized_vms',
+                             '{source_dates}'.format(**config),
+                             'naf_daily',
+                             '{project_id}:{source_naf_dataset}.{source_naf_table}'.format(**config),
+                             '{project_id}:{pipeline_dataset}.{normalized}'.format(**config)]
+            })
             #---- NAF------
 
 
@@ -202,32 +206,70 @@ class PipelineDagFactory(DagFactory):
                 task_id='features'
             )
 
-            events = SubDagOperator(
-                subdag=pipe_events.PipelineDagFactory(
+            events_anchorages = SubDagOperator(
+                subdag = pipe_events_anchorages.PipelineDagFactory(
+                    config_tools.load_config('pipe_events.anchorages'),
                     schedule_interval=dag.schedule_interval,
                     extra_default_args=subdag_default_args,
                     extra_config=subdag_config
-                ).build(dag_id='{}.events'.format(dag_id)),
+                ).build(dag_id='{}.pipe_events_anchorages'.format(dag_id)),
                 depends_on_past=True,
-                task_id='events'
+                task_id='pipe_events_anchorages'
             )
+
+            events_encounters = SubDagOperator(
+                subdag = pipe_events_encounters.PipelineDagFactory(
+                    config_tools.load_config('pipe_events.encounters'),
+                    schedule_interval=dag.schedule_interval,
+                    extra_default_args=subdag_default_args,
+                    extra_config=subdag_config
+                ).build(dag_id='{}.pipe_events_encounters'.format(dag_id)),
+                depends_on_past=True,
+                task_id='pipe_events_encounters'
+            )
+
+            events_fishing = SubDagOperator(
+                subdag = pipe_events_fishing.PipelineDagFactory(
+                    config_tools.load_config('pipe_events.fishing'),
+                    schedule_interval=dag.schedule_interval,
+                    extra_default_args=subdag_default_args,
+                    extra_config=subdag_config
+                ).build(dag_id='{}.pipe_events_fishing'.format(dag_id)),
+                depends_on_past=True,
+                task_id='pipe_events_fishing'
+            )
+
+            events_gaps = SubDagOperator(
+                subdag = pipe_events_gaps.PipelineDagFactory(
+                    config_tools.load_config('pipe_events.gaps'),
+                    schedule_interval=dag.schedule_interval,
+                    extra_default_args=subdag_default_args,
+                    extra_config=subdag_config
+                ).build(dag_id='{}.pipe_events_gaps'.format(dag_id)),
+                depends_on_past=True,
+                task_id='pipe_events_gaps'
+            )
+
 
             dag >> date_branch >> historic
             for existence_sensor in source_exists:
-                historic >> existence_sensor >> fetch_normalized
+                historic >> existence_sensor >> fetch_normalized_historic
 
             dag >> date_branch >> naf_daily
             for existence_sensor in source_naf_exists:
-                naf_daily >> existence_sensor >> fetch_normalized_naf
+                naf_daily >> existence_sensor >> fetch_normalized_naf_daily
 
-            fetch_normalized >> segment
-            fetch_normalized_naf >> segment
+            fetch_normalized_historic >> segment
+            fetch_normalized_naf_daily >> segment
 
             segment >> measures
 
             measures >> port_events >> port_visits >> features
             measures >> encounters >> features
-            features >> events
+            features >> events_anchorages
+            features >> events_encounters
+            features >> events_fishing
+            features >> events_gaps
 
         return dag
 

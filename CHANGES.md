@@ -8,6 +8,15 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v2.0.0 - 2020-03-09
+
+### Added
+
+  * [GlobalFishingWatch/gfw-eng-tasks#25](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/25): Adds
+    to support airflow `1.10.5` and ``pipe-tools:v3.1.0``
+    Supports `apache-beam:2.16.0`.
+    Supports python 3.
+
 ### Added
 
 ## 0.1.1 - (2019-07-03)
