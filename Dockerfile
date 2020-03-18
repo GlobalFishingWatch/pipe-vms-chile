@@ -1,13 +1,16 @@
-FROM python:2.7-stretch
+FROM python:3.7-stretch
 
 # Configure the working directory
 RUN mkdir -p /opt/project
 WORKDIR /opt/project
 
+# Airflow version upgrade to 1.10
+ENV SLUGIFY_USES_TEXT_UNIDECODE=yes
+ENV CLOUD_SDK_VERSION 268.0.0
+
 # Install and update pip
 # Pin the version because pip>=10.0 does not support the --download flag  which is required for dataflow
 RUN pip install -U --ignore-installed pip==9.0.3
-ENV CLOUD_SDK_VERSION 255.0.0
 
 # Download and install google cloud. See the dockerfile at
 # https://hub.docker.com/r/google/cloud-sdk/~/dockerfile/
@@ -31,7 +34,8 @@ VOLUME ["/root/.config"]
 
 # Setup local application dependencies
 COPY . /opt/project
-RUN pip install --process-dependency-links -e .
+RUN pip install -r requirements.txt
+RUN pip install -e .
 
 # Setup the entrypoint for quickly executing the pipelines
 ENTRYPOINT ["scripts/run.sh"]
