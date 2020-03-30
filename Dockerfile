@@ -6,14 +6,10 @@ WORKDIR /opt/project
 
 # Airflow version upgrade to 1.10
 ENV SLUGIFY_USES_TEXT_UNIDECODE=yes
-ENV CLOUD_SDK_VERSION 268.0.0
-
-# Install and update pip
-# Pin the version because pip>=10.0 does not support the --download flag  which is required for dataflow
-RUN pip install -U --ignore-installed pip==9.0.3
 
 # Download and install google cloud. See the dockerfile at
 # https://hub.docker.com/r/google/cloud-sdk/~/dockerfile/
+ENV CLOUD_SDK_VERSION 268.0.0
 RUN  \
   export CLOUD_SDK_APT_DEPS="curl gcc python-dev python-setuptools apt-transport-https lsb-release openssh-client git" && \
   export CLOUD_SDK_PIP_DEPS="crcmod" && \
