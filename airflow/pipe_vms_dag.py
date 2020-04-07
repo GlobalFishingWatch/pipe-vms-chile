@@ -9,7 +9,7 @@ from airflow_ext.gfw import config as config_tools
 from airflow_ext.gfw.models import DagFactory
 from airflow_ext.gfw.operators.python_operator import ExecutionDateBranchOperator
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import imp
 import posixpath as pp
@@ -194,7 +194,6 @@ class PipelineDagFactory(DagFactory):
                 task_id='port_visits'
             )
 
-
             encounters = SubDagOperator(
                 subdag=pipe_encounters.PipeEncountersDagFactory(
                     schedule_interval=dag.schedule_interval,
@@ -202,61 +201,6 @@ class PipelineDagFactory(DagFactory):
                     extra_config=subdag_config
                 ).build(dag_id='{}.encounters'.format(dag_id)),
                 task_id='encounters'
-            )
-
-
-            features = SubDagOperator(
-                subdag=pipe_features.PipeFeaturesDagFactory(
-                    schedule_interval=dag.schedule_interval,
-                    extra_default_args=subdag_default_args,
-                    extra_config=subdag_config
-                ).build(dag_id='{}.features'.format(dag_id)),
-                depends_on_past=True,
-                task_id='features'
-            )
-
-            events_anchorages = SubDagOperator(
-                subdag = pipe_events_anchorages.PipelineDagFactory(
-                    config_tools.load_config('pipe_events.anchorages'),
-                    schedule_interval=dag.schedule_interval,
-                    extra_default_args=subdag_default_args,
-                    extra_config=subdag_config
-                ).build(dag_id='{}.pipe_events_anchorages'.format(dag_id)),
-                depends_on_past=True,
-                task_id='pipe_events_anchorages'
-            )
-
-            events_encounters = SubDagOperator(
-                subdag = pipe_events_encounters.PipelineDagFactory(
-                    config_tools.load_config('pipe_events.encounters'),
-                    schedule_interval=dag.schedule_interval,
-                    extra_default_args=subdag_default_args,
-                    extra_config=subdag_config
-                ).build(dag_id='{}.pipe_events_encounters'.format(dag_id)),
-                depends_on_past=True,
-                task_id='pipe_events_encounters'
-            )
-
-            events_fishing = SubDagOperator(
-                subdag = pipe_events_fishing.PipelineDagFactory(
-                    config_tools.load_config('pipe_events.fishing'),
-                    schedule_interval=dag.schedule_interval,
-                    extra_default_args=subdag_default_args,
-                    extra_config=subdag_config
-                ).build(dag_id='{}.pipe_events_fishing'.format(dag_id)),
-                depends_on_past=True,
-                task_id='pipe_events_fishing'
-            )
-
-            events_gaps = SubDagOperator(
-                subdag = pipe_events_gaps.PipelineDagFactory(
-                    config_tools.load_config('pipe_events.gaps'),
-                    schedule_interval=dag.schedule_interval,
-                    extra_default_args=subdag_default_args,
-                    extra_config=subdag_config
-                ).build(dag_id='{}.pipe_events_gaps'.format(dag_id)),
-                depends_on_past=True,
-                task_id='pipe_events_gaps'
             )
 
 
@@ -273,14 +217,76 @@ class PipelineDagFactory(DagFactory):
 
             segment >> measures
 
-            measures >> port_events >> port_visits >> features
-            measures >> encounters >> features
-            features >> events_anchorages
-            features >> events_encounters
-            features >> events_fishing
-            features >> events_gaps
+            measures >> port_events >> port_visits
+            measures >> encounters
+
+            if config.get('enable_features_events', False):
+
+                features = SubDagOperator(
+                    subdag=pipe_features.PipeFeaturesDagFactory(
+                        schedule_interval=dag.schedule_interval,
+                        extra_default_args=subdag_default_args,
+                        extra_config=subdag_config
+                    ).build(dag_id='{}.features'.format(dag_id)),
+                    depends_on_past=True,
+                    task_id='features'
+                )
+
+                events_anchorages = SubDagOperator(
+                    subdag = pipe_events_anchorages.PipelineDagFactory(
+                        config_tools.load_config('pipe_events.anchorages'),
+                        schedule_interval=dag.schedule_interval,
+                        extra_default_args=subdag_default_args,
+                        extra_config=subdag_config
+                    ).build(dag_id='{}.pipe_events_anchorages'.format(dag_id)),
+                    depends_on_past=True,
+                    task_id='pipe_events_anchorages'
+                )
+
+                events_encounters = SubDagOperator(
+                    subdag = pipe_events_encounters.PipelineDagFactory(
+                        config_tools.load_config('pipe_events.encounters'),
+                        schedule_interval=dag.schedule_interval,
+                        extra_default_args=subdag_default_args,
+                        extra_config=subdag_config
+                    ).build(dag_id='{}.pipe_events_encounters'.format(dag_id)),
+                    depends_on_past=True,
+                    task_id='pipe_events_encounters'
+                )
+
+                events_fishing = SubDagOperator(
+                    subdag = pipe_events_fishing.PipelineDagFactory(
+                        config_tools.load_config('pipe_events.fishing'),
+                        schedule_interval=dag.schedule_interval,
+                        extra_default_args=subdag_default_args,
+                        extra_config=subdag_config
+                    ).build(dag_id='{}.pipe_events_fishing'.format(dag_id)),
+                    depends_on_past=True,
+                    task_id='pipe_events_fishing'
+                )
+
+                events_gaps = SubDagOperator(
+                    subdag = pipe_events_gaps.PipelineDagFactory(
+                        config_tools.load_config('pipe_events.gaps'),
+                        schedule_interval=dag.schedule_interval,
+                        extra_default_args=subdag_default_args,
+                        extra_config=subdag_config
+                    ).build(dag_id='{}.pipe_events_gaps'.format(dag_id)),
+                    depends_on_past=True,
+                    task_id='pipe_events_gaps'
+                )
+
+                port_visits >> features
+                encounters >> features
+
+                # Points to each independent event
+                features >> events_anchorages
+                features >> events_encounters
+                features >> events_fishing
+                features >> events_gaps
 
         return dag
+
 
 for mode in ['daily','monthly', 'yearly']:
     dag_id = '{}_{}'.format(PIPELINE, mode)
