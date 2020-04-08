@@ -1,56 +1,48 @@
-#standardsql
+#standardSQL
 WITH
-
-###
-### Apply basic transformations to the Panama VMS positions.
-###
-raw_vms_positions_normalized AS (
-  SELECT 
-    shipname, 
-    timestamp as timestamp, 
-    latitude lat, 
-    longitude lon, 
-    speed, 
-    heading as course, 
-    TO_HEX(MD5(shipname)) as ssvid,
-    IF(callsign != "", callsign, NULL) callsign, 
-    CONCAT("chile_vms_",fleet) as source,
+  ###
+  ### Apply basic transformations to the Panama VMS positions.
+  ###
+  raw_vms_positions_normalized AS (
+  SELECT
+    shipname,
+    timestamp AS timestamp,
+    lat,
+    lon,
+    speed,
+    course,
+    TO_HEX(MD5(shipname)) AS ssvid,
+  IF
+    (callsign != "",
+      callsign,
+      NULL) callsign,
+    CONCAT("chile_vms_", fleet) AS source,
     "VMS" type
   FROM
-    `{{ source }}`
+    `{{ source  }}`
   WHERE
-    timestamp > Timestamp('{{ date }}')
-    AND timestamp <= TIMESTAMP_ADD(Timestamp('{{ date }}'), INTERVAL 1 DAY)
-),
-
-###
-### Generate a message id for every message of the VMS data.
-###
-raw_positionsn_normalized_with_msgid as(
-      SELECT
-      #collection_type, msg_type, timestamp, lat, lon, imo, name, callsign
-      TO_HEX( MD5 (
-        format("%s|%t|%f|%f|%s|%s",
-            "chile",
-            timestamp,
-            lat,
-            lon,
-            IFNULL(TRIM(TRIM(shipname)),""),
-            IFNULL(TRIM(TRIM(callsign)),"")
-      ))) as msgid,
-      *
-     FROM
-        raw_vms_positions_normalized
-     WHERE 
-        ssvid IS NOT NULL
-   )
-   
-
-
-###
-### Final Query with message IDs and the normalized values.
-###
-SELECT 
-  * 
-FROM 
-    raw_positionsn_normalized_with_msgid
+    timestamp > TIMESTAMP('{{ date  }}')
+    AND timestamp <= TIMESTAMP_ADD(TIMESTAMP('{{ date  }}'), INTERVAL 1 DAY) ),
+  ###
+  ### Generate a message id for every message of the VMS data.
+  ###
+  raw_positionsn_normalized_with_msgid AS(
+  SELECT
+    #collection_type, msg_type, timestamp, lat, lon, imo, name, callsign
+    TO_HEX( MD5 ( FORMAT("%s|%t|%f|%f|%s|%s", "chile", timestamp, lat, lon, IFNULL(TRIM(TRIM(shipname)),
+            ""), IFNULL(TRIM(TRIM(callsign)),
+            "") ) ) ) AS msgid,
+    *
+  FROM
+    raw_vms_positions_normalized
+  WHERE
+    ssvid IS NOT NULL )
+  ###
+  ### Final Query with message IDs and the normalized values.
+  ###
+SELECT
+  *
+FROM
+  raw_positionsn_normalized_with_msgid
+)
+)
