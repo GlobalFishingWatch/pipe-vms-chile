@@ -5,15 +5,15 @@ WITH
 ### Apply basic transformations to the Panama VMS positions.
 ###
 raw_vms_positions_normalized AS (
-  SELECT 
-    shipname, 
-    timestamp as timestamp, 
-    latitude lat, 
-    longitude lon, 
-    speed, 
-    heading as course, 
+  SELECT
+    shipname,
+    timestamp as timestamp,
+    lat,
+    lon,
+    speed,
+    course,
     TO_HEX(MD5(shipname)) as ssvid,
-    IF(callsign != "", callsign, NULL) callsign, 
+    IF(callsign != "", callsign, NULL) callsign,
     CONCAT("chile_vms_",fleet) as source,
     "VMS" type
   FROM
@@ -41,16 +41,15 @@ raw_positionsn_normalized_with_msgid as(
       *
      FROM
         raw_vms_positions_normalized
-     WHERE 
+     WHERE
         ssvid IS NOT NULL
    )
-   
 
 
 ###
 ### Final Query with message IDs and the normalized values.
 ###
-SELECT 
-  * 
-FROM 
+SELECT
+  *
+FROM
     raw_positionsn_normalized_with_msgid
