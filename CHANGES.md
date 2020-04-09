@@ -8,6 +8,13 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v3.0.0 - 2020-04-07
+
+### Added
+
+  * [GlobalFishingWatch/gfw-eng-tasks#37](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/37): Adds
+    new distributed events in the Airflow pipeline.
+
 ## v2.0.0 - 2020-03-09
 
 ### Added
