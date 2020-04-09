@@ -11,17 +11,17 @@ from setuptools import setup
 import codecs
 import os
 
-# [TODO]: Edit the package name here.  Note the '-' vs '_'
 PACKAGE_NAME='pipe-vms-chile'
+
 package = __import__('pipe_vms_chile')
 
 
 DEPENDENCIES = [
     "nose",
-    "ujson",
+    "ujson==1.35",
     "pytz",
     "udatetime",
-    "pipe-tools==3.1.0",
+    "pipe-tools==3.1.1",
     "jinja2-cli",
     "requests==2.9.2",
     "newlinejson==1.0",
