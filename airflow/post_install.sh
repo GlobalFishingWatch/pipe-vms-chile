@@ -18,7 +18,6 @@ python $AIRFLOW_HOME/utils/set_default_variables.py \
     source_naf_dataset="VMS_Chile" \
     source_naf_table="raw_naf_all_view" \
     normalized="chile_vms_normalized_" \
-    fleets=[ "aquaculture", "industry", "small_fisheries", "transport"  ] \
 
 echo "Installation Complete"
 
