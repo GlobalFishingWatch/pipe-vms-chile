@@ -8,6 +8,15 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v3.0.1 - 2020-04-25
+
+### Changed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#37](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/37): Changes
+    * The table_partition_check parameters `mode`, `poke_interval`, `timeout`,
+      `retry_exponential_backoff` by `reties`, `execution_timeout`,
+      `retry_dealy` and `max_retry_delay`.
+
 ## v3.0.0 - 2020-04-07
 
 ### Added

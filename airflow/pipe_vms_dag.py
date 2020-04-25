@@ -57,12 +57,10 @@ def table_partition_check(name, dataset_id, table_id, date, fleet):
                 table=table_id,
                 date=date,
                 fleet=fleet),
-        mode='reschedule',               # the sensor task frees the worker slot when the criteria is not yet met
-                                         # and it's rescheduled at a later time.
-        poke_interval=10 * 60,           # check every 10 minutes.
-        timeout=60 * 60 * 24,            # timeout of 24 hours.
-        retry_exponential_backoff=False, # disable progressive longer waits
-        retries=0,                       # no retries and lets fail the task
+        retries=2*24*2,                        # Retries 2 days with 30 minutes.
+        execution_timeout=timedelta(days=2),   # TimeOut of 2 days.
+        retry_delay=timedelta(minutes=30),     # Delay in retries 30 minutes.
+        max_retry_delay=timedelta(minutes=30), # Max Delay in retries 30 minutes
         on_failure_callback=config_tools.failure_callback_gfw
     )
 
