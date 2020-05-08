@@ -3,24 +3,25 @@
 """
 Setup script for pipe-vms-chile
 """
-
-import codecs
-import os
+from pipe_tools.beam.requirements import requirements as DATAFLOW_PINNED_DEPENDENCIES
 
 from setuptools import find_packages
 from setuptools import setup
 
-# [TODO]: Edit the package name here.  Note the '-' vs '_'
+import codecs
+import os
+
 PACKAGE_NAME='pipe-vms-chile'
+
 package = __import__('pipe_vms_chile')
 
 
 DEPENDENCIES = [
     "nose",
-    "ujson",
+    "ujson==1.35",
     "pytz",
     "udatetime",
-    "pipe-tools==2.0.0",
+    "pipe-tools==3.1.1",
     "jinja2-cli",
     "requests==2.9.2",
     "newlinejson==1.0",
@@ -39,7 +40,7 @@ setup(
     author_email=package.__email__,
     description=package.__doc__.strip(),
     include_package_data=True,
-    install_requires=DEPENDENCIES,
+    install_requires=DEPENDENCIES + DATAFLOW_PINNED_DEPENDENCIES,
     license="Apache 2.0",
     long_description=readme,
     name=PACKAGE_NAME,
