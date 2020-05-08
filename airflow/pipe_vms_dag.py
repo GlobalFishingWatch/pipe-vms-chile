@@ -35,9 +35,9 @@ pipe_events_gaps = imp.load_source('pipe_events_gaps', get_dag_path('pipe_events
 
 
 
-def table_partition_check(name, dataset_id, table_id, date, fleet):
+def table_partition_check(dataset_id, table_id, date, fleet):
     return BigQueryCheckOperator(
-        task_id='table_partition_check_{}_{}'.format(fleet, name),
+        task_id='table_partition_check_{}'.format(fleet),
         use_legacy_sql=False,
         dataset_id=dataset_id,
         sql='SELECT '

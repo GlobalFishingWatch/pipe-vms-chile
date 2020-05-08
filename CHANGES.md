@@ -8,6 +8,14 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v3.0.2 - 2020-05-08
+
+### Changed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#84](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/84): Changes
+    * Merged with `master` branch.
+    * This removes the date_branch and uses raw_all_view as a date_brancher.
+
 ## v3.0.1 - 2020-04-25
 
 ### Changed
@@ -33,21 +41,23 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
     Supports `apache-beam:2.16.0`.
     Supports python 3.
 
-### Added
-
 ## 0.2.0
 
-* [GlobalFishingWatch/GFW-Tasks#1136](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1136)
+### Added
+
+* [GlobalFishingWatch/GFW-Tasks#1136](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1136): Adds
   * Move back to having only one flow and used a view that merged NAF and Themis Data
 
-## 0.1.1 - (2019-07-03)
-
-* [GlobalFishingWatch/GFW-Tasks#1085](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1085)
-  * Includes the naf_daily processing in the pipe-vms-chile
+## 0.1.1 - 2019-07-03
 
 ### Added
 
+* [GlobalFishingWatch/GFW-Tasks#1085](https://github.com/GlobalFishingWatch/GFW-Tasks/issues/1085): Adds
+  * Includes the naf_daily processing in the pipe-vms-chile
+
 ## 0.1.0
+
+### Added
 
 * Implementation of pipe-vms-chile
 
