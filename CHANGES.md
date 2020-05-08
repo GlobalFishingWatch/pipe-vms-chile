@@ -8,6 +8,31 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v3.0.1 - 2020-04-25
+
+### Changed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#37](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/37): Changes
+    * The table_partition_check parameters `mode`, `poke_interval`, `timeout`,
+      `retry_exponential_backoff` by `reties`, `execution_timeout`,
+      `retry_dealy` and `max_retry_delay`.
+
+## v3.0.0 - 2020-04-07
+
+### Added
+
+  * [GlobalFishingWatch/gfw-eng-tasks#37](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/37): Adds
+    new distributed events in the Airflow pipeline.
+
+## v2.0.0 - 2020-03-09
+
+### Added
+
+  * [GlobalFishingWatch/gfw-eng-tasks#25](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/25): Adds
+    to support airflow `1.10.5` and ``pipe-tools:v3.1.0``
+    Supports `apache-beam:2.16.0`.
+    Supports python 3.
+
 ### Added
 
 ## 0.2.0
