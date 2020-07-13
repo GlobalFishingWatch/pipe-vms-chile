@@ -17,7 +17,7 @@ ARGS=(
 echo -e "\nRunning:\n${PROCESS}.sh $@ \n"
 
 display_usage() {
-	echo -e "\nUsage:\nfetch_normalized_vms YYYY-MM-DD BIGQUERY_SOURCE BIGQUERY_DESTINATION  \n"
+  echo -e "\nUsage:\nfetch_normalized_vms YYYY-MM-DD BIGQUERY_SOURCE BIGQUERY_DESTINATION  \n"
   echo -e "\nUsage:\n${PROCESS}.sh ${ARGS[*]}\n"
   echo -e "DT: Date to be fetched in YYYY-MM-DD format.\n"
   echo -e "BIGQUERY_SOURCE: BigQuery dataset and table where the input is already stored (Format expected <DATASET>.<TABLE>).\n"
@@ -38,23 +38,14 @@ for index in ${!ARGS[*]}; do
   declare "${ARGS[$index]}"="${ARG_VALUES[$index]}"
 done
 
+#############################################################
+# Fetches the normalized VMS data
+#############################################################
 SQL=${ASSETS}/fetch-normalized-vms.sql.j2
-
 YYYYMMDD=$(yyyymmdd ${DT})
 SOURCE_TABLE=${BIGQUERY_SOURCE/:/.}
-
 DEST_TABLE=${BIGQUERY_DESTINATION}${YYYYMMDD}
-TABLE_DESC=(
-  "* Pipeline: ${PIPELINE} ${PIPELINE_VERSION}"
-  "* Source: VMS ${SOURCE_TABLE}" 
-  "* Command:"
-  "$(basename $0)"
-  "$@"
-)
-TABLE_DESC=$( IFS=$'\n'; echo "${TABLE_DESC[*]}" )
-
 echo "Fetching normalized vms into ${DEST_TABLE}..."
-echo "${TABLE_DESC}"
 
 jinja2 ${SQL} -D source=${SOURCE_TABLE} -D date=${DT}  \
   | bq query -q --max_rows=0 --allow_large_results \
@@ -68,8 +59,20 @@ if [ "$?" -ne 0 ]; then
   exit 1
 fi
 
+#############################################################
+# Updates the table description.
+#############################################################
 echo "Updating table description ${DEST_TABLE}"
+TABLE_DESC=(
+  "* Pipeline: ${PIPELINE} ${PIPELINE_VERSION}"
+  "* Source: VMS ${SOURCE_TABLE}"
+  "* Command:"
+  "$(basename $0)"
+  "$@"
+)
+TABLE_DESC=$( IFS=$'\n'; echo "${TABLE_DESC[*]}" )
 
+echo "${TABLE_DESC}"
 bq update --description "${TABLE_DESC}" ${DEST_TABLE}
 
 if [ "$?" -ne 0 ]; then

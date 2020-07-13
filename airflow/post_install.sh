@@ -18,4 +18,3 @@ python $AIRFLOW_HOME/utils/set_default_variables.py \
     normalized="chile_vms_normalized_" \
 
 echo "Installation Complete"
-

@@ -8,6 +8,13 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v3.1.3 - 2020-07-10
+
+### Removed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#56](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/56): Removes
+    * segment, measures, encounters, anchorages, features and events.
+
 ## v3.0.3 - 2020-06-11
 
 ### Changed

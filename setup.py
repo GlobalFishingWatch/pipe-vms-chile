@@ -17,16 +17,7 @@ package = __import__('pipe_vms_chile')
 
 
 DEPENDENCIES = [
-    "nose",
-    "ujson==1.35",
-    "pytz",
-    "udatetime",
-    "pipe-tools==3.1.2",
-    "jinja2-cli",
-    "requests==2.9.2",
-    "newlinejson==1.0",
-    "argparse==1.2.1",
-    "psycopg2-binary"
+    "pipe-tools==3.1.2"
 ]
 
 with codecs.open('README.md', encoding='utf-8') as f:
