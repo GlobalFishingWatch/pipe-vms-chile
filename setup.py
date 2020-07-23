@@ -5,11 +5,9 @@ Setup script for pipe-vms-chile
 """
 from pipe_tools.beam.requirements import requirements as DATAFLOW_PINNED_DEPENDENCIES
 
-from setuptools import find_packages
 from setuptools import setup
 
 import codecs
-import os
 
 PACKAGE_NAME='pipe-vms-chile'
 
@@ -17,6 +15,7 @@ package = __import__('pipe_vms_chile')
 
 
 DEPENDENCIES = [
+    "jinja2-cli",
     "pipe-tools==3.1.2"
 ]
 

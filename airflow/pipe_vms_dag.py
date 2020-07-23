@@ -11,6 +11,19 @@ from datetime import timedelta
 PIPELINE = 'pipe_vms_chile'
 
 def table_partition_check(dataset_id, table_id, date, fleet):
+    """
+    Checks the BigQuery table of a specific partition.
+
+    :@param dataset_id: The id of BQ dataset.
+    :@type dataset_id: str.
+    :@param table_id: The id of BQ table.
+    :@type table_id: str.
+    :@param date: The date of the partition.
+    :@type date: str.
+    :@param fleet: The fleet to be checked.
+    :@type fleet: str.
+    :@return: A BigQueryCheckOperatior checking the partition table.
+    """
     return BigQueryCheckOperator(
         task_id='table_partition_check_{}'.format(fleet),
         use_legacy_sql=False,
@@ -37,10 +50,26 @@ def table_partition_check(dataset_id, table_id, date, fleet):
 # PIPE_VMS_chile
 #
 class PipelineDagFactory(DagFactory):
+    """Concrete class to handle the DAG for pipe_vms_chile."""
+
     def __init__(self, pipeline=PIPELINE, **kwargs):
+        """
+        Constructs the DAG.
+
+        :@param pipeline: The pipeline name. Default value the PIPELINE.
+        :@type pipeline: str.
+        :@param kwargs: A dict of optional parameters.
+        :@param kwargs: dict.
+        """
         super(PipelineDagFactory, self).__init__(pipeline=pipeline, **kwargs)
 
     def build(self, dag_id):
+        """
+        Override of build method.
+
+        :@param dag_id: The id of the DAG.
+        :@type table: str.
+        """
         config = self.config
         config['source_paths'] = ','.join(self.source_table_paths())
         config['source_dates'] = ','.join(self.source_date_range())
