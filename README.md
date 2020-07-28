@@ -1,48 +1,54 @@
-# Pipe VMS Chile pipeline
+# Pipe VMS Chile
 
-This repository contains the Chilean VMS API consumption pipeline.
+Here will be hosted the code to fetch and normalize the [VMS](https://en.wikipedia.org/wiki/Vessel_monitoring_system) sources from `Chile`.
 
-# Running
+## How to run?
 
-## Dependencies
+### Requirements
 
-You just need [docker](https://www.docker.com/) and
-[docker-compose](https://docs.docker.com/compose/) in your machine to run the
-pipeline. No other dependency is required.
+To run in your local machine you need:
+- [docker](https://www.docker.com/)
+- [docker-compose](https://docs.docker.com/compose/)
+- [Apache-Airflow](https://github.com/apache/airflow)
 
-## Setup
+### Setup
 
-The pipeline reads it's input from BigQuery, so you need to first authenticate
-with your google cloud account inside the docker images. To do that, you need
-to run this command and follow the instructions:
-
+1. Creates a docker volume `gcp` if it is not yet defined.
+```bash
+$ docker volume create --name=gcp
 ```
-docker-compose run gcloud auth login
+2. Build the docker-compose
+```bash
+$ docker-compose build
+$ docker-compose run gcloud auth login
 ```
-### Parameters
-
-There is a particular parameter that must to be set in order to run the Chilean VMS Pipeline.
-`fleets`: Required. It is an array with the names of all the fleets handle by chileans.
-
-## CLI
-
-The pipeline includes a CLI that can be used to start both local test runs and
-remote full runs. Just run `docker-compose run pipeline --help` and follow the
-instructions there.
+3. Install it to your local version of Apache Airflow
+```bash
+$ install.sh
+```
 
 
-# License
+## Collaboration
 
-Copyright 2018 Global Fishing Watch
+The folders have separate meanings when you need to implement or do a change in
+this repository.  The folders contains:
+* `airflow`: Under the airflow folder you
+will find all the python code that will be loaded by the Apache Airflow
+scheduler.  There is a script placed at the root of the repo `install.sh` that
+install all the content of the `airflow` folder to the `/dags` folder of the
+docker container where Apache Airflow is running.
+* `assets`: Under the assets
+forlder you will find all the Jinja and Json script having the Bigquery and
+schemes needed for acomplish the purposes of fetch and normalize the VMS data
+from `Chile`.
+* `pipe_vms_panama`: Under the pipe_vms_panama folder you will find an
+ `__init__.py` where the details, version and author are described.
+* `scripts`: Under the scripts folder you will find the entrypoint of the
+service specified in the `docker-compose.yaml` (usually `run.sh`) and the
+bash scripts that the system uses to acomplish the fetch and normalize of the
+VMS data from `Chile`.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+## License
 
-    http://www.apache.org/licenses/LICENSE-2.0
+- [Apache License 2004](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.

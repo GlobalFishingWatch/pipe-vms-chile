@@ -8,6 +8,19 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v4.0.0 - 2020-07-28
+* **BREAKING CHANGE, only compatible with [pipe-vms-generic](https://github.com/GlobalFishingWatch/pipe-vms-generic).**
+
+### Removed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#56](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/56): Removes
+    * segment, measures, encounters, anchorages, features and events.
+
+### Changed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#56](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/56): Changes
+    * increments Google SDK to `302.0.0`.
+
 ## v3.0.3 - 2020-06-11
 
 ### Changed

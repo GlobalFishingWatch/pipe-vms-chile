@@ -10,12 +10,12 @@
       "name": "ssvid",
       "type": "STRING",
       "description": "We don't have an id in the chilean data so we do TO_HEX(MD5(shipname))."
-    },    
+    },
     {
       "mode": "NULLABLE",
       "name": "source",
       "type": "STRING",
-      "description": "chile in all messages"  
+      "description": "chile in all messages"
     },
     {
       "mode": "NULLABLE",
@@ -90,4 +90,3 @@
       "description": "Null in all cases, this is for compatibility with AIS pipeline."
     }
   ]
- 
