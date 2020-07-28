@@ -9,7 +9,7 @@ ENV SLUGIFY_USES_TEXT_UNIDECODE=yes
 
 # Download and install google cloud. See the dockerfile at
 # https://hub.docker.com/r/google/cloud-sdk/~/dockerfile/
-ENV CLOUD_SDK_VERSION 268.0.0
+ENV CLOUD_SDK_VERSION 302.0.0
 RUN  \
   export CLOUD_SDK_APT_DEPS="curl gcc python-dev python-setuptools apt-transport-https lsb-release openssh-client git" && \
   export CLOUD_SDK_PIP_DEPS="crcmod" && \
@@ -35,4 +35,3 @@ RUN pip install -e .
 
 # Setup the entrypoint for quickly executing the pipelines
 ENTRYPOINT ["scripts/run.sh"]
-
