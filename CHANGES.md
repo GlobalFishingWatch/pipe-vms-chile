@@ -8,6 +8,13 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v4.0.1 - 2020-08-04
+
+### Removed
+
+  * [GlobalFishingWatch/gfw-eng-tasks#56](https://github.com/GlobalFishingWatch/gfw-eng-tasks/issues/56): Removes
+    * invalid arguments passed to BigQueryCheckOperator.
+
 ## v4.0.0 - 2020-07-28
 * **BREAKING CHANGE, only compatible with [pipe-vms-generic](https://github.com/GlobalFishingWatch/pipe-vms-generic).**
 
