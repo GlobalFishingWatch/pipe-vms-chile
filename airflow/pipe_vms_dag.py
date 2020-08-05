@@ -27,7 +27,6 @@ def table_partition_check(dataset_id, table_id, date, fleet):
     return BigQueryCheckOperator(
         task_id='table_partition_check_{}'.format(fleet),
         use_legacy_sql=False,
-        dataset_id=dataset_id,
         sql='SELECT '
                 'COUNT(*) FROM `{dataset}.{table}` '
             'WHERE '
