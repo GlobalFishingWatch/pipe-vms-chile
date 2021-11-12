@@ -3,7 +3,7 @@ Pipeline for processing the Chile VMS data
 """
 
 
-__version__ = '4.0.1'
+__version__ = '4.0.2'
 __author__ = 'Enrique Tuya'
 __email__ = 'enrique@globalfishingwatch.org'
 __source__ = 'https://github.com/GlobalFishingWatch/pipe-vms-chile'
