@@ -12,11 +12,6 @@ PACKAGE_NAME='pipe-vms-chile'
 package = __import__('pipe_vms_chile')
 
 
-DEPENDENCIES = [
-    "jinja2-cli",
-    "pipe-tools==3.1.2"
-]
-
 with codecs.open('README.md', encoding='utf-8') as f:
     readme = f.read().strip()
 
@@ -25,7 +20,7 @@ setup(
     author_email=package.__email__,
     description=package.__doc__.strip(),
     include_package_data=True,
-    install_requires=DEPENDENCIES,
+    install_requires=[],
     license="Apache 2.0",
     long_description=readme,
     name=PACKAGE_NAME,

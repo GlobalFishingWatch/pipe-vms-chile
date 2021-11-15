@@ -1,1 +1,4 @@
-https://codeload.github.com/GlobalFishingWatch/pipe-tools/tar.gz/v3.1.2#egg=pipe-tools
+pipe-tools @ https://codeload.github.com/GlobalFishingWatch/pipe-tools/tar.gz/v3.2.0
+google-cloud-storage==1.22.0
+jinja2-cli==0.7.0
+requests==2.24.0

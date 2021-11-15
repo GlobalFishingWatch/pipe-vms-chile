@@ -14,10 +14,10 @@ services:
     volumes:
       - "gcp:/root/.config/"
 
-  bash:
+  test:
     image: "gfw/pipe-vms-chile"
     build: .
-    entrypoint: bash
+    entrypoint: py.test
     volumes:
       - ".:/opt/project"
       - "gcp:/root/.config/"
