@@ -8,6 +8,19 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## v4.1.0 - 2022-01-26
+
+### Added
+
+* [PIPELINE-741](https://globalfishingwatch.atlassian.net/browse/PIPELINE-741): Adds
+  New docker base image [gfw-bash-pipeline](https://github.com/GlobalFishingWatch/pipe-bash-scripts)
+
+### Removed
+
+* [PIPELINE-741](https://globalfishingwatch.atlassian.net/browse/PIPELINE-741): Removes
+  Dependencies with `pipe-tools`.
+
+
 ## v4.0.2 - 2021-11-11
 
 ### Change
