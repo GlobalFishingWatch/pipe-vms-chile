@@ -2,6 +2,8 @@ include LICENSE
 include CHANGES.md
 include MANIFEST.in
 include README.md
-include setup.py
 include requirements.txt
-recursive-include  assets *
+include setup.py
+recursive-include assets *
+recursive-include scripts *
+recursive-include pipe_vms_chile *

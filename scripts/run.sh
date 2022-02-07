@@ -17,7 +17,6 @@ fi
 case $1 in
 
   fetch_normalized_vms)
-
     xdaterange ${THIS_SCRIPT_DIR}/fetch_normalized_vms.sh "${@:2}"
     ;;
 
