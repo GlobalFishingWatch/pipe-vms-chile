@@ -1,4 +1,4 @@
 google-cloud-storage==1.22.0
-jinja2-cli==0.7.0
+jinja2-cli==0.8.2
 requests==2.24.0
 pytest==6.2.5
